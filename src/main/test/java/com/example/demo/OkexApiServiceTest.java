@@ -1,5 +1,8 @@
 package com.example.demo;
 
+import com.example.demo.domain.dtoes.PlaceOrder;
+import com.example.demo.domain.enums.OrderSide;
+import com.example.demo.domain.enums.OrderType;
 import com.example.demo.okex.module.Config;
 import com.example.demo.okex.module.OkexResponse;
 import com.example.demo.okex.services.ApiService;
@@ -13,7 +16,7 @@ import java.util.Map;
  * Date: 3/27/2023
  * Time: 6:45 PM
  */
-public class Main {
+public class OkexApiServiceTest {
     public static void main(String[] args) throws IOException {
         ApiService apiService = new ApiServiceImpl(
                 new Config(
@@ -42,8 +45,9 @@ public class Main {
         response = apiService.getCurrencies();
         System.err.println("getCurrencies");
         System.out.println(response);
-
-        response = apiService.placeOrder();
+        PlaceOrder placeOrder = new PlaceOrder("BTC-USDT", 0.1 ,
+                20000D , OrderSide.BUY , OrderType.LIMIT);
+        response = apiService.placeOrder(placeOrder);
         System.err.println("placeOrder");
         System.out.println(response);
 

@@ -1,5 +1,6 @@
 package com.example.demo.okex.services;
 
+import com.example.demo.domain.dtoes.PlaceOrder;
 import com.example.demo.okex.module.OkexResponse;
 
 import java.io.IOException;
@@ -10,7 +11,7 @@ import java.io.IOException;
  * Time: 6:45 PM
  */
 public interface ApiService {
-    OkexResponse placeOrder() throws IOException;
+    OkexResponse placeOrder(PlaceOrder placeOrder) throws IOException;
 
     OkexResponse getOrderDetails(String ordId, String instId) throws IOException;
 
@@ -53,4 +54,6 @@ public interface ApiService {
     OkexResponse getCurrencies() throws IOException;
 
     OkexResponse getMarketCandles(String instId) throws IOException;
+
+    OkexResponse getTickerPrice(String instId) throws IOException;
 }

@@ -1,5 +1,6 @@
 package com.example.demo.okex.services.impl;
 
+import com.example.demo.domain.dtoes.PlaceOrder;
 import com.example.demo.okex.module.Config;
 import com.example.demo.okex.module.OkexResponse;
 import com.example.demo.okex.services.ApiService;
@@ -39,15 +40,15 @@ public class ApiServiceImpl implements ApiService {
     }
 
     @Override
-    public OkexResponse placeOrder() throws IOException {
+    public OkexResponse placeOrder(PlaceOrder placeOrder) throws IOException {
         Map<String, String> body = new HashMap<>();
-        body.put("instId", "BTC-USDT");
+        body.put("instId", placeOrder.getInstId());
         body.put("tdMode", "cash");
-        body.put("tag", "cb1cecdf2c62SCDE");
-        body.put("sz", "0.0001");
-        body.put("px", "20000");
-        body.put("side", "buy");
-        body.put("ordType", "limit");
+        body.put("tag", "cb1cecdf2c62SCDE"); // Exchange Tag
+        body.put("sz", placeOrder.getSize().toString());
+        body.put("px", placeOrder.getUnitPrice().toString());
+        body.put("side", placeOrder.getSide().getSide());
+        body.put("ordType", placeOrder.getType().getType());
 
         RequestBody requestBody = RequestBody.create(createJson(body), JSON);
         final String timestamp = DateUtils.getUnixTime();
@@ -57,7 +58,9 @@ public class ApiServiceImpl implements ApiService {
                 .post(requestBody)
                 .addHeader("Content-Type", "application/json")
                 .addHeader("OK-ACCESS-KEY", config.getApiKey())
-                .addHeader("OK-ACCESS-SIGN", createSign(timestamp, "POST", path, bodyConvertor(requestBody), null))
+                .addHeader("OK-ACCESS-SIGN",
+                        createSign(timestamp, "POST", path,
+                                bodyConvertor(requestBody), null))
                 .addHeader("OK-ACCESS-TIMESTAMP", timestamp)
                 .addHeader("OK-ACCESS-PASSPHRASE", config.getPassPhrase())
                 .build();
@@ -564,6 +567,22 @@ public class ApiServiceImpl implements ApiService {
                 .addHeader("OK-ACCESS-SIGN", createSign(timestamp, "GET", path, null, "instId=" + instId))
                 .addHeader("OK-ACCESS-TIMESTAMP", timestamp)
                 .addHeader("OK-ACCESS-PASSPHRASE", config.getPassPhrase())
+                .build();
+
+        Call call = client.newCall(request);
+        Response response = call.execute();
+        ResponseBody responseBody = response.body();
+        OkexResponse okexResponse = gson.fromJson(responseBody.string(), OkexResponse.class);
+        response.close();
+        return okexResponse;
+    }
+
+    @Override
+    public OkexResponse getTickerPrice(String instId) throws IOException {
+        String path = "/api/v5/market/ticker";
+        Request request = new Request.Builder()
+                .url(BASE_URL + path + "?instId=" + instId)
+                .addHeader("Content-Type", "application/json")
                 .build();
 
         Call call = client.newCall(request);
